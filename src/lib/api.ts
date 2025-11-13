@@ -2,7 +2,7 @@ import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query
 import ky from "ky"
 import { AppError } from "@/lib/errors"
 import type { Forum, Post, User, LoginRequest, CreateForumData, Comment, PaginatedResponse } from "@/types"
-import { navigateTo } from "@/lib/navigation"
+import { router } from "@/router"
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
 
@@ -21,10 +21,10 @@ const httpClient = ky.create({
         // Redirect to login using SPA navigation (not full page reload)
         if (response.status === 401) {
           if (window.location.pathname !== "/login") {
-            // Use navigateTo() instead of window.location.href to maintain SPA navigation
+            // Use router.navigate() to maintain SPA navigation
             // This prevents full page reload and preserves smooth user experience
             // The replace: true option prevents adding /login to browser history
-            navigateTo("/login", { replace: true })
+            void router.navigate({ to: "/login", replace: true })
           }
         }
 

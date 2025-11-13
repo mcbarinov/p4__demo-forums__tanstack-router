@@ -1,6 +1,6 @@
 pnpm create vite@latest -t react-ts .
 
-pnpm add @tanstack/react-router @tanstack/react-query
+pnpm add ky @tanstack/react-router @tanstack/react-query
 
 
 

@@ -29,6 +29,9 @@ export default defineConfig([
         projectService: true,
       },
     },
+    rules: {
+      "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: { attributes: false } }],
+    },
   },
   {
     files: ["**/components/ui/**/*.{ts,tsx}"],

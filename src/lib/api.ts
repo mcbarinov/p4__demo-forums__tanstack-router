@@ -73,18 +73,23 @@ export const api = {
         gcTime: Infinity,
       }),
 
-    posts: (slug: string, page = 1, pageSize = 10) =>
-      queryOptions({
+    posts: (slug: string, page?: number, pageSize?: number) => {
+      const searchParams: Record<string, number> = {}
+      if (page !== undefined) searchParams.page = page
+      if (pageSize !== undefined) searchParams.pageSize = pageSize
+
+      return queryOptions({
         queryKey: ["posts", slug, page, pageSize],
         queryFn: () =>
           httpClient
             .get(`api/forums/${slug}/posts`, {
-              searchParams: { page, pageSize },
+              searchParams,
             })
             .json<PaginatedResponse<Post>>(),
         staleTime: 1 * 60 * 1000,
         gcTime: 5 * 60 * 1000,
-      }),
+      })
+    },
 
     post: (slug: string, postNumber: string) =>
       queryOptions({

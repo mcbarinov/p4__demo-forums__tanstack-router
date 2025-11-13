@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthForumsSlugIndexRouteImport } from './routes/_auth/forums/$slug/index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -27,27 +28,35 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
+const AuthForumsSlugIndexRoute = AuthForumsSlugIndexRouteImport.update({
+  id: '/forums/$slug/',
+  path: '/forums/$slug/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/forums/$slug': typeof AuthForumsSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/forums/$slug': typeof AuthForumsSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_auth/forums/$slug/': typeof AuthForumsSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/'
+  fullPaths: '/login' | '/' | '/forums/$slug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/'
-  id: '__root__' | '/_auth' | '/login' | '/_auth/'
+  to: '/login' | '/' | '/forums/$slug'
+  id: '__root__' | '/_auth' | '/login' | '/_auth/' | '/_auth/forums/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -78,15 +87,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/forums/$slug/': {
+      id: '/_auth/forums/$slug/'
+      path: '/forums/$slug'
+      fullPath: '/forums/$slug'
+      preLoaderRoute: typeof AuthForumsSlugIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
   }
 }
 
 interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthForumsSlugIndexRoute: typeof AuthForumsSlugIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
+  AuthForumsSlugIndexRoute: AuthForumsSlugIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

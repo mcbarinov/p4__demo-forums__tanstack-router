@@ -36,7 +36,10 @@ const httpClient = ky.create({
             const contentType = response.headers.get("content-type")
             if (contentType?.includes("application/json")) {
               const data = (await response.clone().json()) as Record<string, unknown>
-              if (typeof data.message === "string" && data.message.trim() !== "") {
+              // Check both 'detail' (FastAPI standard) and 'message' fields
+              if (typeof data.detail === "string" && data.detail.trim() !== "") {
+                message = data.detail
+              } else if (typeof data.message === "string" && data.message.trim() !== "") {
                 message = data.message
               }
             }
@@ -129,8 +132,8 @@ export const api = {
         mutationFn: () => httpClient.post("api/auth/logout"),
         onSuccess: () => {
           // Cookie is cleared automatically by the server
-          // Set currentUser to null without triggering refetch
-          queryClient.setQueryData(["currentUser"], null)
+          // Remove currentUser from cache to force fresh fetch on next login
+          queryClient.removeQueries({ queryKey: ["currentUser"] })
         },
       })
     },

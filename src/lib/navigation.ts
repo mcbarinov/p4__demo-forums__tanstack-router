@@ -2,12 +2,12 @@
  * Navigation Gateway
  *
  * This module provides a bridge between plain JavaScript modules (like api.ts)
- * and React Router, enabling SPA navigation from non-React code.
+ * and TanStack Router, enabling SPA navigation from non-React code.
  *
  * Problem it solves:
  * - api.ts needs to redirect to /login on 401 errors
  * - api.ts is a plain module, not a React component
- * - Can't use React hooks (useNavigate) in plain modules
+ * - Can't use TanStack Router hooks in plain modules
  * - Using window.location.href causes full page reload (not SPA-like)
  *
  * How it works:
@@ -39,7 +39,7 @@ export function setNavigate(fn: NavigateFn) {
  * Navigate to a path using SPA navigation if available, fallback to window.location.
  *
  * This function can be called from any module, including non-React code.
- * It will use React Router's navigate if initialized, or fall back to full page reload.
+ * It will use TanStack Router's navigate if initialized, or fall back to full page reload.
  *
  * @param path - The path to navigate to (e.g., "/login")
  * @param opts - Navigation options

@@ -15,8 +15,8 @@ This is a forum application built with React and TanStack Router. The focus is o
 
 ## Related Projects
 
-- **Backend API**: [p1__demo-forums__api](https://github.com/mcbarinov/p1__demo-forums__api) - FastAPI backend with in-memory storage
-- **React Router Version**: [p2__demo-forums__react-router](https://github.com/mcbarinov/p2__demo-forums__react-router) - Same app built with React Router instead of TanStack Router
+- **Backend API**: [p1**demo-forums**api](https://github.com/mcbarinov/p1__demo-forums__api) - FastAPI backend with in-memory storage
+- **React Router Version**: [p2**demo-forums**react-router](https://github.com/mcbarinov/p2__demo-forums__react-router) - Same app built with React Router instead of TanStack Router
 
 ## Getting Started
 

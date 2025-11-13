@@ -1,5 +1,9 @@
 # Project Guidelines
 
+## Getting Started
+
+- **Always read README.md first** - Before starting work, read the README.md file to understand the project context, tech stack, and setup
+
 ## HTML/CSS Philosophy
 
 - **Simplicity first** - Keep HTML and CSS as simple as possible

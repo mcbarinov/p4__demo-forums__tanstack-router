@@ -20,6 +20,14 @@ export const Route = createFileRoute("/_auth")({
       })
     }
   },
+  loader: async ({ context }) => {
+    // Preload forums and users in parallel
+    // These are cached indefinitely and will be available throughout the app via useCache hooks
+    await Promise.all([
+      context.queryClient.ensureQueryData(api.queries.forums()),
+      context.queryClient.ensureQueryData(api.queries.users()),
+    ])
+  },
   pendingComponent: LoadingComponent,
   component: LayoutComponent,
 })

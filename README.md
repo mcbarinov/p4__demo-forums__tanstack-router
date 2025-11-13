@@ -13,6 +13,52 @@ This is a forum application built with React and TanStack Router. The focus is o
 - Tailwind CSS 4
 - shadcn/ui
 
+## Architecture
+
+### Data Caching Strategy
+
+We treat three resources as application-wide cache with indefinite lifetime:
+
+```typescript
+// src/lib/api.ts
+currentUser: { staleTime: Infinity, gcTime: Infinity }
+forums: { staleTime: Infinity, gcTime: Infinity }
+users: { staleTime: Infinity, gcTime: Infinity }
+```
+
+These are loaded once on protected route entry and remain cached until explicitly invalidated.
+
+**Access via `src/hooks/useCache.ts`:**
+
+```typescript
+const currentUser = useCurrentUser()
+const forums = useForums()
+const users = useUsers()
+const user = useUser(userId) // Throws AppError("not_found")
+const forum = useForum(slug) // Throws AppError("not_found")
+```
+
+**Loading in `src/routes/_auth/route.tsx`:**
+
+```typescript
+beforeLoad: async ({ context }) => {
+  const currentUser = await context.queryClient.ensureQueryData(api.queries.currentUser())
+  return { currentUser }
+},
+loader: async ({ context }) => {
+  await Promise.all([
+    context.queryClient.ensureQueryData(api.queries.forums()),
+    context.queryClient.ensureQueryData(api.queries.users()),
+  ])
+}
+```
+
+**Invalidation:**
+
+- Login: `invalidateQueries()` - clears everything
+- Logout: `removeQueries({ queryKey: ["currentUser"] })`
+- Create forum: `invalidateQueries({ queryKey: ["forums"] })`
+
 ## Related Projects
 
 - **Backend API**: [p1**demo-forums**api](https://github.com/mcbarinov/p1__demo-forums__api) - FastAPI backend with in-memory storage

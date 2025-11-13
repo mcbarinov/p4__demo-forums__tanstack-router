@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { useSuspenseQuery } from "@tanstack/react-query"
-import { api } from "@/lib/api"
+import { useForums } from "@/hooks/useCache"
 import type { Forum } from "@/types"
 import ForumCard from "./-components/index/ForumCard"
 
@@ -9,7 +8,7 @@ export const Route = createFileRoute("/_auth/")({
 })
 
 function ForumListComponent() {
-  const { data: forums } = useSuspenseQuery(api.queries.forums())
+  const forums = useForums()
 
   const groupedForums = forums.reduce<Record<string, Forum[]>>((acc, forum) => {
     acc[forum.category] ??= []

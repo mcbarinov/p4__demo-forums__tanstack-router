@@ -1,8 +1,9 @@
-import { Link, useNavigate, useRouteContext } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { api } from "@/lib/api"
+import { useCurrentUser } from "@/hooks/useCache"
 
 export default function Header() {
-  const { currentUser } = useRouteContext({ from: "/_auth" })
+  const currentUser = useCurrentUser()
   const logoutMutation = api.mutations.useLogout()
   const navigate = useNavigate()
 

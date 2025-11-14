@@ -8,6 +8,12 @@ import Header from "./-components/layout/Header"
 import Footer from "./-components/layout/Footer"
 
 export const Route = createFileRoute("/_auth")({
+  // ROUTE GUARD (1st layer of auth defense)
+  // Prevents entering protected routes without valid session
+  // This is different from ky.afterResponse which handles runtime session expiration
+  // Both mechanisms are needed:
+  // - beforeLoad: Guards route entry, preserves original URL for post-login redirect
+  // - afterResponse: Catches session expiration during runtime (e.g., mutations, background refetches)
   beforeLoad: async ({ context, location }) => {
     try {
       const currentUser = await context.queryClient.ensureQueryData(api.queries.currentUser())
@@ -19,6 +25,7 @@ export const Route = createFileRoute("/_auth")({
       // Other errors (500, network) will be handled by errorComponent
       if (appError.code === "unauthorized" || appError.code === "forbidden") {
         // TanStack Router uses `throw redirect()` as the official way to redirect in beforeLoad
+        // The original URL is preserved via search.redirect for post-login redirect
         // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw redirect({
           to: "/login",

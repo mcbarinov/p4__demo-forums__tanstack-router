@@ -57,6 +57,63 @@ loader: async ({ context }) => {
 
 Router cache is disabled (`defaultPreloadStaleTime: 0`) - all caching delegated to TanStack Query.
 
+### Authentication Flow
+
+**Multi-layer authentication defense (defense in depth):**
+
+The app uses two complementary mechanisms to handle authentication failures. Both are necessary and serve different purposes:
+
+**1. Route Guard (`_auth.beforeLoad`)** - First layer of defense
+
+Prevents entering protected routes without valid session:
+
+```typescript
+// src/routes/_auth/route.tsx
+beforeLoad: async ({ context, location }) => {
+  const currentUser = await context.queryClient.ensureQueryData(api.queries.currentUser())
+  return { currentUser }
+}
+```
+
+- **When:** User navigates to protected route (e.g., opens `/forums/tech` in new tab)
+- **Trigger:** Navigation attempt to any route under `_auth/`
+- **Behavior:**
+  - Fetches current user data before rendering route
+  - Redirects to `/login` with original URL preserved for post-login redirect
+  - Handles both 401 (unauthorized) and 403 (forbidden) errors
+
+**2. Runtime Session Guard (`ky.afterResponse`)** - Second layer of defense
+
+Catches session expiration during user activity:
+
+```typescript
+// src/lib/api.ts - ky hooks
+afterResponse: [
+  async (_request, _options, response) => {
+    if (response.status === 401) {
+      void router.navigate({ to: "/login", search: { redirect: window.location.href } })
+    }
+  },
+]
+```
+
+- **When:** Session expires while user is actively working (e.g., clicks "Create Comment" after 30 minutes of inactivity)
+- **Trigger:** Any API call returns 401
+- **Behavior:**
+  - Intercepts ALL 401 responses from any API call (mutations, queries, background refetches)
+  - Redirects to `/login` with current URL preserved for post-login redirect
+  - Prevents user confusion from "random" API errors
+
+**Why both mechanisms are needed:**
+
+| Scenario                                             | Handler       | Without it...                                        |
+| ---------------------------------------------------- | ------------- | ---------------------------------------------------- |
+| Direct navigation to `/forums/tech` while logged out | Route Guard   | Protected route renders without user context → crash |
+| Session expires while on `/forums/tech/posts/1`      | Runtime Guard | Mutations fail with confusing errors → poor UX       |
+| Opens `/forums/tech` in new tab after logout         | Route Guard   | User sees protected content briefly → security issue |
+
+This is **not duplication** - it's layered defense ensuring authentication is validated at both route entry and runtime.
+
 ### Data Caching Strategy
 
 We treat three resources as application-wide cache with indefinite lifetime:

@@ -17,14 +17,22 @@ const httpClient = ky.create({
   hooks: {
     afterResponse: [
       async (_request, _options, response) => {
-        // Handle 401 authentication errors
-        // Redirect to login using SPA navigation (not full page reload)
+        // RUNTIME SESSION GUARD (2nd layer of auth defense)
+        // Handles authentication failures during user activity (e.g., session expired while user is working)
+        // This is different from _auth.beforeLoad which guards route entry
+        // Both mechanisms are needed:
+        // - beforeLoad: Prevents entering protected routes without valid session
+        // - afterResponse: Catches session expiration during runtime (e.g., mutations, background refetches)
         if (response.status === 401) {
           if (window.location.pathname !== "/login") {
-            // Use router.navigate() to maintain SPA navigation
-            // This prevents full page reload and preserves smooth user experience
+            // Redirect to login with current URL preserved for post-login redirect
+            // Uses router.navigate() to maintain SPA navigation (no full page reload)
             // The replace: true option prevents adding /login to browser history
-            void router.navigate({ to: "/login", replace: true })
+            void router.navigate({
+              to: "/login",
+              search: { redirect: window.location.href },
+              replace: true,
+            })
           }
         }
 

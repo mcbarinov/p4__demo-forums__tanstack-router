@@ -1,12 +1,5 @@
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationEllipsis,
-} from "@/components/ui/pagination"
+import type { UseNavigateResult } from "@tanstack/react-router"
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface PaginatorProps {
@@ -14,83 +7,29 @@ interface PaginatorProps {
   totalPages: number
   pageSize: number
   totalCount: number
-  onPageChange: (page: number) => void
-  onPageSizeChange: (pageSize: number) => void
+  navigate: UseNavigateResult<string>
 }
 
-export function Paginator({ currentPage, totalPages, pageSize, totalCount, onPageChange, onPageSizeChange }: PaginatorProps) {
+export function Paginator({ currentPage, totalPages, pageSize, totalCount, navigate }: PaginatorProps) {
   if (totalPages <= 1) {
     return null
   }
 
-  const handlePageChange = (page: number) => {
-    if (page < 1 || page > totalPages) return
-    onPageChange(page)
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return
+    void navigate({
+      search: { page: newPage, pageSize } as never,
+    })
   }
 
   const handlePageSizeChange = (newPageSize: string) => {
-    onPageSizeChange(Number(newPageSize))
+    void navigate({
+      search: { page: 1, pageSize: Number(newPageSize) } as never,
+    })
   }
 
   const startItem = (currentPage - 1) * pageSize + 1
   const endItem = Math.min(currentPage * pageSize, totalCount)
-
-  const renderPageNumbers = () => {
-    return Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-      let pageNumber: number
-      if (totalPages <= 5) {
-        pageNumber = i + 1
-      } else if (currentPage <= 3) {
-        pageNumber = i + 1
-      } else if (currentPage >= totalPages - 2) {
-        pageNumber = totalPages - 4 + i
-      } else {
-        pageNumber = currentPage - 2 + i
-      }
-
-      if (pageNumber === 1 || pageNumber === totalPages) {
-        return (
-          <PaginationItem key={pageNumber}>
-            <PaginationLink
-              onClick={() => {
-                handlePageChange(pageNumber)
-              }}
-              isActive={currentPage === pageNumber}
-              className="cursor-pointer"
-            >
-              {pageNumber}
-            </PaginationLink>
-          </PaginationItem>
-        )
-      }
-
-      if ((currentPage > 4 && i === 0) || (currentPage < totalPages - 3 && i === 4)) {
-        return (
-          <PaginationItem key={`ellipsis-${String(i)}`}>
-            <PaginationEllipsis />
-          </PaginationItem>
-        )
-      }
-
-      if (pageNumber > 1 && pageNumber < totalPages) {
-        return (
-          <PaginationItem key={pageNumber}>
-            <PaginationLink
-              onClick={() => {
-                handlePageChange(pageNumber)
-              }}
-              isActive={currentPage === pageNumber}
-              className="cursor-pointer"
-            >
-              {pageNumber}
-            </PaginationLink>
-          </PaginationItem>
-        )
-      }
-
-      return null
-    }).filter(Boolean)
-  }
 
   return (
     <div className="mt-6">
@@ -116,30 +55,32 @@ export function Paginator({ currentPage, totalPages, pageSize, totalCount, onPag
         </div>
       </div>
 
-      <div className="flex justify-center">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => {
-                  handlePageChange(currentPage - 1)
-                }}
-                className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
+      <div className="flex justify-center items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            handlePageChange(currentPage - 1)
+          }}
+          disabled={currentPage <= 1}
+        >
+          Previous
+        </Button>
 
-            {renderPageNumbers()}
+        <span className="text-sm text-muted-foreground">
+          Page {currentPage} of {totalPages}
+        </span>
 
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => {
-                  handlePageChange(currentPage + 1)
-                }}
-                className={currentPage >= totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            handlePageChange(currentPage + 1)
+          }}
+          disabled={currentPage >= totalPages}
+        >
+          Next
+        </Button>
       </div>
     </div>
   )

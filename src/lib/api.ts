@@ -1,7 +1,7 @@
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query"
 import ky from "ky"
 import { AppError } from "@/lib/errors"
-import type { Forum, Post, User, LoginRequest, CreateForumData, Comment, PaginatedResponse } from "@/types"
+import type { Forum, Post, User, LoginRequest, CreateForumData, Comment } from "@/types"
 import { router } from "@/router"
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
@@ -76,16 +76,31 @@ export const api = {
     posts: (slug: string, page?: number, pageSize?: number) => {
       const searchParams: Record<string, number> = {}
       if (page !== undefined) searchParams.page = page
-      if (pageSize !== undefined) searchParams.pageSize = pageSize
+      if (pageSize !== undefined) searchParams.page_size = pageSize
 
       return queryOptions({
         queryKey: ["posts", slug, page, pageSize],
-        queryFn: () =>
-          httpClient
+        queryFn: async () => {
+          const response = await httpClient
             .get(`api/forums/${slug}/posts`, {
               searchParams,
             })
-            .json<PaginatedResponse<Post>>(),
+            .json<{
+              items: Post[]
+              total_count: number
+              page: number
+              page_size: number
+              total_pages: number
+            }>()
+
+          return {
+            items: response.items,
+            totalCount: response.total_count,
+            page: response.page,
+            pageSize: response.page_size,
+            totalPages: response.total_pages,
+          }
+        },
         staleTime: 1 * 60 * 1000,
         gcTime: 5 * 60 * 1000,
       })

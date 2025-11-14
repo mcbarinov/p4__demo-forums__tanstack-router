@@ -1,5 +1,6 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
+import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router"
 import { api } from "@/lib/api"
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
 import Header from "./-components/layout/Header"
 import Footer from "./-components/layout/Footer"
 
@@ -41,11 +42,15 @@ function LoadingComponent() {
 }
 
 function LayoutComponent() {
+  const location = useLocation()
+
   return (
     <div className="min-h-screen flex flex-col max-w-4xl mx-auto px-6">
       <Header />
       <main className="flex-1 py-6">
-        <Outlet />
+        <ErrorBoundary resetKey={location.pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <Footer />
     </div>

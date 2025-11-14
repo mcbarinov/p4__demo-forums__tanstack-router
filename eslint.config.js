@@ -6,6 +6,7 @@ import tseslint from "typescript-eslint"
 import reactX from "eslint-plugin-react-x"
 import reactDom from "eslint-plugin-react-dom"
 import prettier from "eslint-config-prettier"
+import pluginQuery from "@tanstack/eslint-plugin-query"
 import { defineConfig, globalIgnores } from "eslint/config"
 
 export default defineConfig([
@@ -20,6 +21,7 @@ export default defineConfig([
       reactDom.configs.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
+      ...pluginQuery.configs["flat/recommended"],
       prettier,
     ],
     languageOptions: {

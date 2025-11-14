@@ -1,12 +1,56 @@
 import { createRouter } from "@tanstack/react-router"
-import { QueryClient } from "@tanstack/react-query"
+import { QueryClient, QueryCache, MutationCache } from "@tanstack/react-query"
 import { routeTree } from "./routeTree.gen"
+import { toast } from "sonner"
+import { AppError } from "@/lib/errors"
 
 interface RouterContext {
   queryClient: QueryClient
 }
 
-export const queryClient = new QueryClient()
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Retry logic: only retry server/network errors, not client errors
+      retry: (failureCount, error) => {
+        const appError = AppError.fromUnknown(error)
+
+        // Never retry client errors (won't succeed anyway)
+        if (["unauthorized", "forbidden", "not_found", "bad_request", "validation"].includes(appError.code)) {
+          return false
+        }
+
+        // Retry transient failures (server errors, network issues) up to 3 times
+        if (["server_error", "network_error"].includes(appError.code)) {
+          return failureCount < 3
+        }
+
+        return false
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    },
+    mutations: {
+      retry: false, // Mutations should fail fast
+    },
+  },
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      // Only show error toasts for background refetches when there's existing data
+      // This prevents duplicate error notifications on initial load
+      if (query.state.data !== undefined) {
+        const appError = AppError.fromUnknown(error)
+        toast.error(appError.message)
+      }
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => {
+      // Log all mutation errors for monitoring
+      const appError = AppError.fromUnknown(error)
+      console.error("Mutation error:", appError)
+    },
+  }),
+})
 
 export const router = createRouter({
   routeTree,

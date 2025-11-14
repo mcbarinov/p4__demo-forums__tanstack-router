@@ -73,17 +73,18 @@ export const api = {
         gcTime: Infinity,
       }),
 
-    posts: (slug: string, page?: number, pageSize?: number) => {
-      const searchParams: Record<string, number> = {}
-      if (page !== undefined) searchParams.page = page
-      if (pageSize !== undefined) searchParams.page_size = pageSize
-
-      return queryOptions({
-        queryKey: ["posts", slug, page, pageSize],
+    posts: (slug: string, page?: number, pageSize?: number) =>
+      queryOptions({
+        queryKey: ["posts", slug, page, pageSize] as const,
         queryFn: async () => {
+          // Only send parameters that are defined - let server decide defaults
+          const searchParams: Record<string, number> = {}
+          if (page !== undefined) searchParams.page = page
+          if (pageSize !== undefined) searchParams.page_size = pageSize
+
           const response = await httpClient
             .get(`api/forums/${slug}/posts`, {
-              searchParams,
+              searchParams: Object.keys(searchParams).length > 0 ? searchParams : undefined,
             })
             .json<{
               items: Post[]
@@ -101,17 +102,12 @@ export const api = {
             totalPages: response.total_pages,
           }
         },
-        staleTime: 1 * 60 * 1000,
-        gcTime: 5 * 60 * 1000,
-      })
-    },
+      }),
 
     post: (slug: string, postNumber: string) =>
       queryOptions({
         queryKey: ["post", slug, postNumber],
         queryFn: () => httpClient.get(`api/forums/${slug}/posts/${postNumber}`).json<Post>(),
-        staleTime: 1 * 60 * 1000,
-        gcTime: 5 * 60 * 1000,
       }),
 
     users: () =>
@@ -126,8 +122,6 @@ export const api = {
       queryOptions({
         queryKey: ["comments", slug, postNumber],
         queryFn: () => httpClient.get(`api/forums/${slug}/posts/${postNumber}/comments`).json<Comment[]>(),
-        staleTime: 30 * 1000,
-        gcTime: 2 * 60 * 1000,
       }),
   },
 

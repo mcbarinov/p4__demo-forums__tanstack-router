@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client"
 import { RouterProvider } from "@tanstack/react-router"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { Toaster } from "@/components/ui/sonner"
 import { router, queryClient } from "./router"
 import "./index.css"
@@ -16,6 +17,7 @@ createRoot(rootElement).render(
       <RouterProvider router={router} />
       <Toaster />
       <ReactQueryDevtools initialIsOpen={false} />
+      <TanStackRouterDevtools router={router} initialIsOpen={false} />
     </QueryClientProvider>
   </StrictMode>
 )

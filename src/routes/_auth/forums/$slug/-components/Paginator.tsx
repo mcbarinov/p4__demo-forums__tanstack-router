@@ -1,4 +1,3 @@
-import type { UseNavigateResult } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -7,25 +6,22 @@ interface PaginatorProps {
   totalPages: number
   pageSize: number
   totalCount: number
-  navigate: UseNavigateResult<string>
+  onPageChange: (page: number) => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
-export function Paginator({ currentPage, totalPages, pageSize, totalCount, navigate }: PaginatorProps) {
+export function Paginator({ currentPage, totalPages, pageSize, totalCount, onPageChange, onPageSizeChange }: PaginatorProps) {
   if (totalPages <= 1) {
     return null
   }
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return
-    void navigate({
-      search: { page: newPage, pageSize } as never,
-    })
+    onPageChange(newPage)
   }
 
   const handlePageSizeChange = (newPageSize: string) => {
-    void navigate({
-      search: { page: 1, pageSize: Number(newPageSize) } as never,
-    })
+    onPageSizeChange(Number(newPageSize))
   }
 
   const startItem = (currentPage - 1) * pageSize + 1

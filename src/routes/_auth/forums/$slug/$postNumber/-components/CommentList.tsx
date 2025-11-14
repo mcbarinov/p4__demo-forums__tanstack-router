@@ -2,7 +2,7 @@ import type { Comment } from "@/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CommentItem } from "./CommentItem"
 
-export function CommentList({ comments }: { comments: Comment[]; slug: string; postNumber: string }) {
+export function CommentList({ comments }: { comments: Comment[] }) {
   if (comments.length === 0) {
     return (
       <Card className="mt-6">

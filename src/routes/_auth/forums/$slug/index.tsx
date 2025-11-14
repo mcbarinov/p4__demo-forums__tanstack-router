@@ -40,7 +40,7 @@ function PostListComponent() {
           <h1 className="text-3xl font-bold mb-2">{forum.title}</h1>
           <p className="text-muted-foreground">{forum.description}</p>
         </div>
-        <Button onClick={() => void navigate({ to: `/forums/${slug}/new` as never })}>New Post</Button>
+        <Button onClick={() => void navigate({ to: "/forums/$slug/new", params: { slug } })}>New Post</Button>
       </div>
 
       <PostsTable posts={posts} slug={slug} />
@@ -50,7 +50,8 @@ function PostListComponent() {
         totalPages={totalPages}
         pageSize={currentPageSize}
         totalCount={paginatedData.totalCount}
-        navigate={navigate}
+        onPageChange={(page) => void navigate({ search: (prev) => ({ ...prev, page }) })}
+        onPageSizeChange={(pageSize) => void navigate({ search: (prev) => ({ ...prev, page: 1, pageSize }) })}
       />
     </div>
   )

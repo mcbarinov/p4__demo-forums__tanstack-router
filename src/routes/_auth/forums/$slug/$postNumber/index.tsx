@@ -35,7 +35,7 @@ function PostViewComponent() {
 
       <PostDetail post={post} />
       <CommentForm slug={slug} postNumber={postNumber} />
-      <CommentList comments={comments} slug={slug} postNumber={postNumber} />
+      <CommentList comments={comments} />
     </div>
   )
 }

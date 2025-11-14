@@ -1,6 +1,9 @@
 import { createFileRoute, Outlet, redirect, useLocation } from "@tanstack/react-router"
 import { api } from "@/lib/api"
+import { AppError } from "@/lib/errors"
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircleIcon } from "lucide-react"
 import Header from "./-components/layout/Header"
 import Footer from "./-components/layout/Footer"
 
@@ -9,16 +12,24 @@ export const Route = createFileRoute("/_auth")({
     try {
       const currentUser = await context.queryClient.ensureQueryData(api.queries.currentUser())
       return { currentUser }
-    } catch {
-      // If authentication fails (401 from api/profile or no cache after logout), redirect to login page
-      // TanStack Router uses `throw redirect()` as the official way to redirect in beforeLoad
-      // eslint-disable-next-line @typescript-eslint/only-throw-error
-      throw redirect({
-        to: "/login",
-        search: {
-          redirect: location.href,
-        },
-      })
+    } catch (error) {
+      const appError = AppError.fromUnknown(error)
+
+      // Only redirect to login for authentication/authorization errors
+      // Other errors (500, network) will be handled by errorComponent
+      if (appError.code === "unauthorized" || appError.code === "forbidden") {
+        // TanStack Router uses `throw redirect()` as the official way to redirect in beforeLoad
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
+        throw redirect({
+          to: "/login",
+          search: {
+            redirect: location.href,
+          },
+        })
+      }
+
+      // Re-throw other errors to be caught by errorComponent
+      throw error
     }
   },
   loader: async ({ context }) => {
@@ -29,6 +40,7 @@ export const Route = createFileRoute("/_auth")({
       context.queryClient.ensureQueryData(api.queries.users()),
     ])
   },
+  errorComponent: ErrorComponent,
   pendingComponent: LoadingComponent,
   component: LayoutComponent,
 })
@@ -37,6 +49,20 @@ function LoadingComponent() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div>Loading...</div>
+    </div>
+  )
+}
+
+function ErrorComponent({ error }: { error: Error }) {
+  const appError = AppError.fromUnknown(error)
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <Alert variant="destructive" className="max-w-2xl">
+        <AlertCircleIcon />
+        <AlertTitle>{appError.title}</AlertTitle>
+        <AlertDescription>{appError.message}</AlertDescription>
+      </Alert>
     </div>
   )
 }

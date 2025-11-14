@@ -35,7 +35,10 @@ export function PostsTable({ posts, slug }: PostsTableProps) {
               key={post.id}
               className="cursor-pointer hover:bg-muted/50"
               onClick={() => {
-                void navigate({ to: `/forums/${slug}/${String(post.number)}` as never })
+                void navigate({
+                  to: "/forums/$slug/$postNumber",
+                  params: { slug, postNumber: String(post.number) },
+                })
               }}
             >
               <TableCell className="font-medium">{post.number}</TableCell>

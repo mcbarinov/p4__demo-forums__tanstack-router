@@ -157,7 +157,21 @@ const forum = useForum(slug) // Throws AppError("not_found")
 - Error boundaries at multiple levels: React Error Boundary + Route `errorComponent`
 - Global error handling via `QueryCache` and `MutationCache` with toast notifications
 - 401 responses automatically redirect to login page
+- TanStack Router's `notFoundComponent` for non-existent routes
 - Derived cache access (e.g., `useUser(id)`) throws `AppError` if not found - caught by error boundaries
+
+**Two types of 404 handling:**
+
+1. **Route 404** (non-existent URL like `/random-url`)
+   - Handled by `notFoundComponent` configured in `_auth` route
+   - Shows dedicated 404 page with Alert
+   - Example: User navigates to `/forums/random-url` that doesn't match any route
+
+2. **Resource 404** (non-existent resource like `/forums/tech/999` or missing user in cache)
+   - API errors and cache misses throw `AppError("not_found")`
+   - Caught by route `errorComponent` or React Error Boundary
+   - Shows error alert with specific message from API or cache hook
+   - Preserves detailed error messages (e.g., "Post #999 not found" vs generic "page not found")
 
 **Error display pattern:**
 

@@ -22,6 +22,11 @@ export default function Header() {
       </Link>
       <div className="flex items-center gap-4">
         <span className="text-sm">{currentUser.username}</span>
+        {currentUser.role === "admin" && (
+          <Link to="/forums/new" className="text-sm px-3 py-1 border rounded hover:bg-gray-100">
+            Create Forum
+          </Link>
+        )}
         <button onClick={handleLogout} className="text-sm px-3 py-1 border rounded hover:bg-gray-100">
           Logout
         </button>

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthForumsNewRouteImport } from './routes/_auth/forums/new'
 import { Route as AuthForumsSlugIndexRouteImport } from './routes/_auth/forums/$slug/index'
 import { Route as AuthForumsSlugNewRouteImport } from './routes/_auth/forums/$slug/new'
 import { Route as AuthForumsSlugPostNumberIndexRouteImport } from './routes/_auth/forums/$slug/$postNumber/index'
@@ -28,6 +29,11 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthForumsNewRoute = AuthForumsNewRouteImport.update({
+  id: '/forums/new',
+  path: '/forums/new',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthForumsSlugIndexRoute = AuthForumsSlugIndexRouteImport.update({
@@ -50,6 +56,7 @@ const AuthForumsSlugPostNumberIndexRoute =
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/forums/new': typeof AuthForumsNewRoute
   '/forums/$slug/new': typeof AuthForumsSlugNewRoute
   '/forums/$slug': typeof AuthForumsSlugIndexRoute
   '/forums/$slug/$postNumber': typeof AuthForumsSlugPostNumberIndexRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthIndexRoute
+  '/forums/new': typeof AuthForumsNewRoute
   '/forums/$slug/new': typeof AuthForumsSlugNewRoute
   '/forums/$slug': typeof AuthForumsSlugIndexRoute
   '/forums/$slug/$postNumber': typeof AuthForumsSlugPostNumberIndexRoute
@@ -66,6 +74,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_auth/forums/new': typeof AuthForumsNewRoute
   '/_auth/forums/$slug/new': typeof AuthForumsSlugNewRoute
   '/_auth/forums/$slug/': typeof AuthForumsSlugIndexRoute
   '/_auth/forums/$slug/$postNumber/': typeof AuthForumsSlugPostNumberIndexRoute
@@ -75,6 +84,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/'
+    | '/forums/new'
     | '/forums/$slug/new'
     | '/forums/$slug'
     | '/forums/$slug/$postNumber'
@@ -82,6 +92,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/'
+    | '/forums/new'
     | '/forums/$slug/new'
     | '/forums/$slug'
     | '/forums/$slug/$postNumber'
@@ -90,6 +101,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/login'
     | '/_auth/'
+    | '/_auth/forums/new'
     | '/_auth/forums/$slug/new'
     | '/_auth/forums/$slug/'
     | '/_auth/forums/$slug/$postNumber/'
@@ -123,6 +135,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRouteRoute
     }
+    '/_auth/forums/new': {
+      id: '/_auth/forums/new'
+      path: '/forums/new'
+      fullPath: '/forums/new'
+      preLoaderRoute: typeof AuthForumsNewRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
     '/_auth/forums/$slug/': {
       id: '/_auth/forums/$slug/'
       path: '/forums/$slug'
@@ -149,6 +168,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
+  AuthForumsNewRoute: typeof AuthForumsNewRoute
   AuthForumsSlugNewRoute: typeof AuthForumsSlugNewRoute
   AuthForumsSlugIndexRoute: typeof AuthForumsSlugIndexRoute
   AuthForumsSlugPostNumberIndexRoute: typeof AuthForumsSlugPostNumberIndexRoute
@@ -156,6 +176,7 @@ interface AuthRouteRouteChildren {
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
+  AuthForumsNewRoute: AuthForumsNewRoute,
   AuthForumsSlugNewRoute: AuthForumsSlugNewRoute,
   AuthForumsSlugIndexRoute: AuthForumsSlugIndexRoute,
   AuthForumsSlugPostNumberIndexRoute: AuthForumsSlugPostNumberIndexRoute,
